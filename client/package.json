@@ -1,0 +1,32 @@
+{
+  "name": "testhellochain-dapp",
+  "version": "1.0.0",
+  "description": "A very simple Dapp for testhellochain",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/yvsharma02/TestHelloChainDapp.git"
+  },
+  "author": "Yashvardhan",
+  "license": "ISC",
+  "dependencies": {
+    "@cosmjs/launchpad": "^0.27.1",
+    "@cosmjs/math": "^0.29.4",
+    "@cosmjs/proto-signing": "^0.29.4",
+    "@cosmjs/stargate": "^0.29.4",
+    "browserify": "^17.0.0",
+    "cors": "^2.8.5",
+    "express": "^4.18.2",
+    "node-fetch": "2.6.6",
+    "request": "^2.88.2",
+    "ts-node": "^10.9.1",
+    "webpack-cli": "^5.0.0"
+  },
+  "bugs": {
+    "url": "https://github.com/yvsharma02/TestHelloChainDapp/issues"
+  },
+  "homepage": "https://github.com/yvsharma02/TestHelloChainDapp#readme"
+}
