@@ -2,14 +2,12 @@
 
     function estimate() {
         fetch('/estimate', {
-        method: 'POST',
-        headers: {
-        'Accept': 'application/json',
-        'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ "address": 123, "mnemonic": 123 })
-}).then((res) => {});
-
+            method: 'POST',
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            },
+        }).then((res) => {});
     }
 
 </script>
