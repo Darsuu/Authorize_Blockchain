@@ -1,0 +1,25 @@
+<html>
+    <head>
+        <script>
+            function login() {
+                fetch('/login', {
+                    method: 'POST',
+                    headers: {
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ "pass": document.getElementById("pass").value})
+                    })
+                .then((res) => {
+                    window.location.href = "http://127.0.0.1:4000/logged-in";
+                });
+            }
+        </script>
+    </head>
+    <form>
+        Password <input type = "text" id = "pass"> <br>
+    </form>
+    <button type="button" onclick="login()">
+        Submit
+    </button>
+</html>
