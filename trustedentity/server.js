@@ -27,21 +27,20 @@ app.use(express.urlencoded()); // to support URL-encoded bodies
 app.use(cors());
 
 app.post('/receive', async (req, res) => {
-  //console.log(res.body.mnemonic);
+  //console.log("The mnemonic is " + req.body.mnemonic);
+  //console.log(req.body.address);
   await account_creation_tx(req.body.address);
   res.end();
 });
 
-async function account_creation_tx(reciever_address)
+async function account_creation_tx(receiver_address)
 {
   try {
       const guardian_auth_address = process.env.ADDRESS_OF_TRUSTED_ENTITY
       const guardian_auth_mnemonic = process.env.MNEMONIC_OF_TRUSTED_ENTITY
-      // const guardian_auth_address = ""
-      // const guardian_auth_mnemonic = ""
       const guardian_auth_wallet = await proto.DirectSecp256k1HdWallet.fromMnemonic(guardian_auth_mnemonic);
       const guardian_auth = await stargate.SigningStargateClient.connectWithSigner(RPC_END_POINT, guardian_auth_wallet);
-      console.log("Requester's address: ", reciever_address);
+      console.log("Requester's address: ", receiver_address);
       const fee = {
         amount: [
             {
@@ -51,7 +50,7 @@ async function account_creation_tx(reciever_address)
         ],
         gas: "250000",
       };
-      const result = await guardian_auth.sendTokens(guardian_auth_address, reciever_address, [{denom: "token", amount: "100"}], fee);
+      const result = await guardian_auth.sendTokens(guardian_auth_address, receiver_address, [{denom: "token", amount: "100"}], fee);
       console.log(result);
       stargate.assertIsDeliverTxSuccess(result);
   } catch(err) {

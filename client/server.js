@@ -12,6 +12,9 @@ const HOST_NAME = '127.0.0.1';
 const PORT = 4000;
 const algorithm = 'aes-256-cbc';
 const iv = crypto.randomBytes(16);
+var decrypt_key = '';
+var encrypted_data = '';
+var decrypted_mnemonic = '';
 
 const app = express();
 
@@ -26,26 +29,10 @@ app.use(express.urlencoded()); // to support URL-encoded bodies
 
 app.use(cors());
 
-app.post('/activate', async (req, res) => {
-  const wallet = await Secp256k1HdWallet.generate(12, {prefix: "cosmos"});
-  const [{ address }] = await wallet.getAccounts();
-  // console.log(encrypt.encryptedData);
-  // const mnemonic = await decrypt(encrypted);
-  // console.log(mnemonic);
-  console.log("Address:", address);
-  request({
-    url: "http://127.0.0.1:4001/receive",
-    method: "POST",
-    json: true,
-    body: {address: address}
-  });
-  res.end();
-});
-
 async function decrypt(text) {
   let iv = Buffer.from(text.iv, 'hex');
   let encryptedText = Buffer.from(text.encryptedData, 'hex');
-  let decipher = crypto.createDecipheriv(algorithm, Buffer.from(key), iv);
+  let decipher = crypto.createDecipheriv(algorithm, Buffer.from(decrypt_key), iv);
   let decrypted = decipher.update(encryptedText);
   decrypted = Buffer.concat([decrypted, decipher.final()]);
   return decrypted.toString();
@@ -54,13 +41,14 @@ async function decrypt(text) {
 async function createPassFile(pass)
 {
   const wallet = await proto.DirectSecp256k1HdWallet.generate(24);
-  console.log(wallet.mnemonic);
+  //console.log(wallet.mnemonic);
   var key1 = crypto.createHash('sha256').update(String(pass)).digest('hex').substring(0, 32);
   var encrypted = await encrypt(wallet.mnemonic, key1);
   fs.writeFile('pass.txt', encrypted.encryptedData + "\n" + key1, function (err) {
   if (err) throw err;
-  console.log('File is created successfully.');
+  console.log('File created successfully.');
   });
+  return encrypted;
 }
 
 async function encrypt(text, key) {
@@ -70,39 +58,6 @@ async function encrypt(text, key) {
   return { iv: iv.toString('hex'),
   encryptedData: encrypted.toString('hex') };
 }
-
-app.post('/login', async (req, res) => {
-  console.log("Login request received");
-  const pass = crypto.createHash('sha256').update(String(req.body.pass)).digest('hex').substring(0, 32);
-  const fileStream = fs.createReadStream('./pass.txt');
-  const rl = readline.createInterface({
-    input: fileStream,
-    crlfDelay: Infinity
-  });
-  const credentials = [];
-  for await (const line of rl) {
-    credentials.push(line);
-  }
-  if(credentials[1] === pass)
-  {
-    console.log("Login successful");
-    res.end();
-  } 
-  else console.log("Login failed");
-  
-});
-
-app.post('/signup', async (req, res) => {
-  const pass = req.body.pass;
-  const confirmpass = req.body.confirmPass;
-  if(pass === confirmpass)
-  {
-      createPassFile(pass);
-      console.log("Successful");
-      res.end();
-  }
-  else console.log("Password and Confirm Password must be equal");
-});
 
 app.get('/logged-in', async (req, res) => {
   html = fs.readFileSync('./views/logged-in.html');
@@ -124,6 +79,56 @@ app.get('/', (req, res) => {
 app.get('/login', (req, res) => {
   html = fs.readFileSync('./views/login.html');
   res.write(html);
+  res.end();
+});
+
+app.post('/login', async (req, res) => {
+  const pass = crypto.createHash('sha256').update(String(req.body.pass)).digest('hex').substring(0, 32);
+  const fileStream = fs.createReadStream('./pass.txt');
+  const rl = readline.createInterface({
+    input: fileStream,
+    crlfDelay: Infinity
+  });
+  const credentials = [];
+  for await (const line of rl) {
+    credentials.push(line);
+  }
+  //fileStream.close();
+  if(credentials[1] === pass)
+  {
+    console.log("Login successful");
+    decrypt_key = pass;
+    decrypted_mnemonic = await decrypt(encrypted_data);
+    // console.log(Object.values({decrypted_mnemonic})[0]);
+    // console.log(typeof(Object.values({decrypted_mnemonic})[0]));
+    res.end();
+  } 
+  else console.log("Login failed");
+  
+});
+
+app.post('/signup', async (req, res) => {
+  const pass = req.body.pass;
+  const confirmpass = req.body.confirmPass;
+  if(pass === confirmpass)
+  {
+      encrypted_data = await createPassFile(pass);
+      console.log("Sign up successful");
+      res.end();
+  }
+  else console.log("Password and Confirm Password must be equal");
+});
+
+app.post('/activate', async (req, res) => {
+  const wallet = await Secp256k1HdWallet.generate(12, {prefix: "cosmos"});
+  const [{ address }] = await wallet.getAccounts();
+  //console.log("Address:", address, "Mnemonic: ", Object.values({decrypted_mnemonic})[0]);
+  request({
+    url: "http://127.0.0.1:4001/receive",
+    method: "POST",
+    json: true,
+    body: {address: address, mnemonic: Object.values({decrypted_mnemonic})[0]}
+  });
   res.end();
 });
 
