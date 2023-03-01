@@ -1,18 +1,26 @@
-<script>
+<html>
+    <head>
+        <script>
+            function send() {
+                fetch('/transfer', {
+                    method: 'POST',
+                    headers: {
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ "receiverAddress": document.getElementById("receiverAddress").value, "amount": document.getElementById("amount").value })
+                })
+                .then((res) => {alert("Your account is activated"); window.location.href = "http://127.0.0.1:4000/home"});
+            }
+        </script>
+    </head>
+    <form>
+        Receiver Address <input type = "textbox" id = "receiverAddress"><br>
+        Amount <input type = "textbox" id = "amount"><br>
+    </form>
+    <h1> Home </h1>
+    <button type="button" onclick="send()">
+        Transfer Token
+    </button>
 
-    function estimate() {
-        fetch('/estimate', {
-            method: 'POST',
-            headers: {
-                'Accept': 'application/json',
-                'Content-Type': 'application/json'
-            },
-        }).then((res) => {});
-    }
-
-</script>
-
-
-<button type="button" onclick="estimate() ">
-Estimate
-</button>
+</html>
