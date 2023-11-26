@@ -1,6 +1,7 @@
 # Authorize Blockchain Project
 
 The following image showcases the basic workflow that will be used in the project. It provides the basic internal working as well as the flow from onboarding to the first transaction.
+
 ![SOP flow chart](https://github.com/Darsuu/Authorize_Blockchain/assets/81075125/1e055456-cc34-4309-827b-248fa42e9697)
 
 ## First time login
